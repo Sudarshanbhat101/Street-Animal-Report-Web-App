@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Street Animal Reporting</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="min-h-screen">
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-primary-600">Street Animal Reporting</h1>
+            <a href="/admin" class="btn-secondary">Admin Dashboard</a>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="card animate-fade-in">
+            <h2 class="text-3xl font-bold text-secondary-800 mb-6">Report a Street Animal</h2>
+            
+            <form action="/report" method="POST" id="reportForm" class="space-y-6">
+                <div class="form-group">
+                    <label for="animalType" class="form-label">What type of animal is it?</label>
+                    <input type="text" id="animalType" name="animalType" class="form-input" placeholder="e.g., Dog, Cat" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="status" class="form-label">What is the condition of the animal?</label>
+                    <select id="status" name="status" class="form-input" required>
+                        <option value="">Select condition...</option>
+                        <option value="stray">Stray</option>
+                        <option value="dead">Dead</option>
+                        <option value="injured">Injured</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label">Your Email Address</label>
+                    <div class="relative">
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            class="form-input peer" 
+                            placeholder="e.g., example@example.com" 
+                            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                            required 
+                            onkeyup="validateEmail(this)"
+                        />
+                        <span id="emailError" class="text-red-500 text-sm hidden">Please enter a valid email address</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Animal Image</label>
+                    <div class="space-y-4">
+                        <!-- Camera Section (Hidden by default) -->
+                        <div id="cameraSection" class="hidden">
+                            <div class="relative">
+                                <video id="camera" class="w-full rounded-lg bg-secondary-100" autoplay></video>
+                                <canvas id="canvas" class="hidden"></canvas>
+                                <button type="button" id="captureBtn" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 btn-primary">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Initial Button Section -->
+                        <div id="initialButtons" class="flex flex-col sm:flex-row gap-12 justify-center">
+                            <button type="button" id="startCameraBtn" class="btn-primary flex items-center justify-center gap-2 px-6 py-2 text-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                Capture Image
+                            </button>
+                            
+                            <label for="fileUpload" class="btn-secondary flex items-center justify-center gap-2 cursor-pointer px-6 py-2 text-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                                Upload Image
+                                <input type="file" id="fileUpload" name="fileUpload" accept="image/*" class="hidden" />
+                            </label>
+                        </div>
+                    </div>
+                    <input type="hidden" id="animalImage" name="image" required />
+                    <span id="imageError" class="text-red-500 text-sm hidden">Please capture or upload an image</span>
+                </div>
+
+                <input type="hidden" id="location" name="location" required />
+                <span id="locationError" class="text-red-500 text-sm hidden">Please enable location access</span>
+                
+                <div class="flex justify-center">
+                    <button type="submit" class="btn-primary" id="submitBtn">
+                        Submit Report
+                    </button>
+                </div>
+            </form>
+
+            <p id="error" class="text-red-500 text-sm text-center mt-4"></p>
+        </div>
+    </main>
+
+    <script>
+        const camera = document.getElementById("camera");
+        const captureBtn = document.getElementById("captureBtn");
+        const startCameraBtn = document.getElementById("startCameraBtn");
+        const canvas = document.getElementById("canvas");
+        const context = canvas.getContext("2d");
+        const animalImageInput = document.getElementById("animalImage");
+        const fileUpload = document.getElementById("fileUpload");
+        const locationInput = document.getElementById("location");
+        const errorDisplay = document.getElementById("error");
+        const cameraSection = document.getElementById("cameraSection");
+        const initialButtons = document.getElementById("initialButtons");
+        const imageError = document.getElementById("imageError");
+        const locationError = document.getElementById("locationError");
+        const submitBtn = document.getElementById("submitBtn");
+
+        let stream = null;
+
+        // Start camera when capture button is clicked
+        startCameraBtn.addEventListener("click", () => {
+            initialButtons.classList.add("hidden");
+            cameraSection.classList.remove("hidden");
+            
+            navigator.mediaDevices
+                .getUserMedia({ video: true })
+                .then((mediaStream) => {
+                    stream = mediaStream;
+                    camera.srcObject = stream;
+                })
+                .catch((err) => {
+                    console.error("Error accessing camera: ", err);
+                    errorDisplay.textContent = "Error accessing camera! Please ensure camera permissions are granted.";
+                    initialButtons.classList.remove("hidden");
+                    cameraSection.classList.add("hidden");
+                });
+        });
+
+        // Capture the image
+        captureBtn.addEventListener("click", () => {
+            canvas.width = camera.videoWidth;
+            canvas.height = camera.videoHeight;
+            context.drawImage(camera, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL("image/jpeg");
+            animalImageInput.value = dataUrl;
+            
+            // Stop camera and show initial buttons
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            cameraSection.classList.add("hidden");
+            initialButtons.classList.remove("hidden");
+            
+            // Show success message
+            errorDisplay.textContent = "Photo captured successfully!";
+            errorDisplay.className = "text-green-500 text-sm text-center mt-4";
+            imageError.classList.add("hidden");
+        });
+
+        // Handle file upload
+        fileUpload.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    animalImageInput.value = e.target.result;
+                    errorDisplay.textContent = "Image uploaded successfully!";
+                    errorDisplay.className = "text-green-500 text-sm text-center mt-4";
+                    imageError.classList.add("hidden");
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Form validation
+        const form = document.getElementById("reportForm");
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            
+            // Reset error messages
+            errorDisplay.textContent = "";
+            errorDisplay.className = "text-red-500 text-sm text-center mt-4";
+            imageError.classList.add("hidden");
+            locationError.classList.add("hidden");
+
+            // Check if image is captured/uploaded
+            if (!animalImageInput.value) {
+                imageError.classList.remove("hidden");
+                return;
+            }
+
+            // Get user's location
+            if (!locationInput.value) {
+                errorDisplay.textContent = "Fetching location, please wait...";
+                errorDisplay.className = "text-secondary-600 text-sm text-center mt-4";
+
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            locationInput.value = `${position.coords.latitude}, ${position.coords.longitude}`;
+                            form.submit();
+                        },
+                        () => {
+                            locationError.classList.remove("hidden");
+                            errorDisplay.textContent = "Unable to fetch location. Please enable location access.";
+                        }
+                    );
+                } else {
+                    locationError.classList.remove("hidden");
+                    errorDisplay.textContent = "Geolocation is not supported by this browser.";
+                }
+                return;
+            }
+
+            // If all validations pass, submit the form
+            form.submit();
+        });
+
+        // Email validation function
+        function validateEmail(input) {
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const errorSpan = document.getElementById('emailError');
+            
+            if (!emailRegex.test(input.value)) {
+                input.classList.add('border-red-500');
+                errorSpan.classList.remove('hidden');
+                return false;
+            } else {
+                input.classList.remove('border-red-500');
+                errorSpan.classList.add('hidden');
+                return true;
+            }
+        }
+    </script>
+</body>
+</html>
