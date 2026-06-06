@@ -15,20 +15,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
 
-// Add session middleware before your routes
 app.use(session({
-  secret: 'your-secret-key',  // Change this to a secure random string
+  secret: process.env.SESSION_SECRET || 'dev-session-secret-change-me',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // set to true in production with HTTPS
+  cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
 
-// Connect to MongoDB
 mongoose
-  .connect("mongodb://127.0.0.1:27017/streetAnimalsDB", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/streetAnimalsDB")
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Could not connect to MongoDB:", err));
 
@@ -54,9 +49,8 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Admin credentials (in a real app, these should be in a database)
-const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'admin123'; // Change this to a secure password
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
 // Middleware to check if user is admin
 const requireAdmin = (req, res, next) => {
