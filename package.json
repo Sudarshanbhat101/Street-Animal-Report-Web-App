@@ -17,7 +17,11 @@
     "mongodb",
     "ejs"
   ],
-  "author": "Sudarshan Bhat (https://github.com/Sudarshanbhat101)",
+  "author": "Sudarshan Bhat & Shripoorna Sunil Petkar",
+  "contributors": [
+    "Sudarshan Bhat <https://github.com/Sudarshanbhat101>",
+    "Shripoorna Sunil Petkar <https://github.com/shripoornasunilpetkar>"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
